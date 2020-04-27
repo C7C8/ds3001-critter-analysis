@@ -12,6 +12,7 @@ jupyter = "*"
 matplotlib = "*"
 bs4 = "*"
 requests = "*"
+seaborn = "*"
 
 [requires]
 python_version = "3.8"
