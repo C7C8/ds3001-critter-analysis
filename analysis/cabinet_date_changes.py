@@ -5,6 +5,7 @@ import math
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 # Conversion of the Cabinet-Date-Changes script, and modified to use seaborn
 
@@ -56,7 +57,7 @@ def add_relative_date_to_df(dataframe: pd.DataFrame) -> None:
         dataframe['year'].apply(convert_to_int_if_possible)
     )
 
-def add_missing_entries_for_agency(dataframe: pd.DataFrame) -> None:
+def add_missing_entries_for_agency(dataframe: pd.DataFrame) -> pd.DataFrame:
     min_date = dataframe['relative_date'].min()
     max_date = dataframe['relative_date'].max()
     missing_items = pd.DataFrame(columns=['sum', 'relative_date'])
@@ -74,6 +75,7 @@ def add_missing_entries_for_agency(dataframe: pd.DataFrame) -> None:
 
 spending_by_cabinet_figure = plt.figure(figsize=(14, 128))
 add_relative_date_to_df(agency_spending_data)
+sns.set_style("darkgrid")
 for i, position in enumerate(position_agency_mappings.keys()):
     domestic_plot = spending_by_cabinet_figure.add_subplot(len(position_agency_mappings), 2, i * 2 + 1)
     foreign_plot = spending_by_cabinet_figure.add_subplot(len(position_agency_mappings), 2, i * 2 + 2)
@@ -103,16 +105,20 @@ for i, position in enumerate(position_agency_mappings.keys()):
     # Add missing dates before performing normalization - doing makes a moving average more accurate
     foreign_spending = add_missing_entries_for_agency(foreign_spending)
 
-    domestic_plot.plot(
-        domestic_spending['relative_date'],
-        domestic_spending['sum'].rolling(12).mean(),
+    chart = sns.lineplot(
+        x=domestic_spending["relative_date"],
+        y=domestic_spending["sum"].rolling(12).mean(),
+        ax=domestic_plot
     )
-    domestic_plot.set_title(position + ' domestic spending by year')
-    foreign_plot.plot(
-        foreign_spending['relative_date'],
-        foreign_spending['sum'].rolling(12).mean(),
-        color='orange'
+    chart.set_title(position + ' domestic spending by year')
+    chart.set(xlabel="Year", ylabel="Sum ($)")
+    chart = sns.lineplot(
+        x=foreign_spending['relative_date'],
+        y=foreign_spending['sum'].rolling(12).mean(),
+        color='orange',
+        ax=foreign_plot
     )
-    foreign_plot.set_title(position + ' foreign spending by year')
+    chart.set_title(position + ' foreign spending by year')
+    chart.set(xlabel="Year", ylabel="Sum ($)")
 
 plt.show()
