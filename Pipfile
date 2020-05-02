@@ -13,6 +13,7 @@ matplotlib = "*"
 bs4 = "*"
 requests = "*"
 seaborn = "*"
+ipympl = "*"
 
 [requires]
 python_version = "3.8"
