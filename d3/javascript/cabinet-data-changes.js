@@ -212,14 +212,18 @@ const init = async () => {
 
 
 			departmentSelect.addEventListener('change', () => {
-				if (departmentSelect.value === 'Secretary of State') {
+				if (departmentSelect.value === 'all') {
+					let y_offset = 0;
 					for (let [key, value] of Object.entries(groups)) {
-						if (key === 'Secretary of State') {
-							const t = d3.transition()
-								.duration(750)
-								.ease(d3.easeLinear);
-							value[0].transition(t).attr('transform', `translate(0, 0) scale(2.0)`);
-							value[1].style('display', 'none');
+						value[0].style('display', '').attr('transform', `translate(0, ${y_offset})`);
+						value[1].style('display', '').attr('transform', `translate(${PLOT_WIDTH}, ${y_offset})`);
+						y_offset += PLOT_HEIGHT
+					}
+				} else {
+					for (let [key, value] of Object.entries(groups)) {
+						if (key === departmentSelect.value) {
+							value[0].style('display', '').attr('transform', `translate(0, 0) scale(2.0)`);
+							value[1].style('display', '').attr('transform', `translate(0, ${PLOT_HEIGHT*2}) scale(2.0)`);
 						} else {
 							value[0].style('display', 'none');
 							value[1].style('display', 'none');
