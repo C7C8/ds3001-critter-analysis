@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Percent to foreign calculator</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="calculator.js"></script>
+</head>
+<body onload = "onload()">
+
+<h1 class = "d-flex justify-content-center">This page calculates the % of contract value that will be sent overseas</h1>
+<div class = "d-flex justify-content-center" >
+	<input type="radio" id="N/a" name="party" value="none" checked>
+	<label for="N/a">N/a</label>
+	<input type="radio" id="Democrat" name="party" value="Democrat">
+	<label for="Democrat">Democrat</label>
+	<input type="radio" id="Republican" name="party" value="Republican">
+	<label for="Republican">Republican</label>
+
+	<input type="radio" id="Trump" name="party" value="Trump">
+	<label for="Trump">Trump</label>
+	<input type="radio" id="Bush" name="party" value="Bush">
+	<label for="Bush">Bush</label>
+ </div>
+ <br>
+<div class = "d-flex justify-content-center" padding = 10px>
+	<label class = "d-flex justify-content-center"for="age">How many years old are they:</label>
+	<input type="number" id="age" name="age">
+</div>
+
+<div class = "d-flex justify-content-center" padding = 10px>
+	<label for="termLength">Predicted term length in years:</label>
+	<input type="number" id="termLength" name="termLength">
+</div>
+
+<div class = "d-flex justify-content-center" padding = 10px>
+	<label for="approval">Senate approval:</label>
+	<input type="number" id="approval" name="approval" placeholder = "%">
+</div>
+
+<div class = "d-flex justify-content-center" padding = 10px>
+	<button id = "calculatorButton" type="button" onclick = "calculate()">Calculate!</button><br>
+</div>
+<div class = "d-flex justify-content-center" padding = 10px>
+	<label id = "result"></label>
+</div>
+
+</body>
+</html>
