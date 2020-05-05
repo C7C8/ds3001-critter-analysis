@@ -67,6 +67,11 @@ const plot_data = (group, x_data, y_data, x_scale) => {
 			.tickFormat(d => d)); // Create an axis component with d3.axisBottom
 
 	group.append("g")
+		.attr("class", "x_axis")
+		.attr("transform", `translate(0,${MARGIN_TOP})`)
+		.call(d3.axisTop(x_scale).tickValues([]));
+
+	group.append("g")
 		.attr("class", "y_axis")
 		.attr("transform", `translate(${MARGIN_LEFT},0)`)
 		.call(d3.axisLeft(y_scale)
