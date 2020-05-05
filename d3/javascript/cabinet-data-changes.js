@@ -180,6 +180,13 @@ const convert_to_relative_year = (date_str) => {
 	return date.getFullYear() + date.getDOY() / (date.isLeapYear() ? 366.0 : 365.0);
 }
 
+const create_option = (value, text) => {
+	const option = document.createElement('option');
+	option.value = value;
+	option.innerText = text;
+	return option;
+}
+
 
 const init = async () => {
 	await Promise.all([d3.json('../data/json/cabinet-data-changes.json'),
@@ -190,15 +197,22 @@ const init = async () => {
 
 			const groups = {};
 
+			const departmentSelect = document.querySelector('#department_select');
+			// Clear options for the select
+			departmentSelect.innerHTML = '';
+			departmentSelect.appendChild(create_option('all', 'All'));
+			departmentSelect.selectedIndex = 0;
+
 			data[0].forEach((position_data, index) => {
 				const position_confirmations = data[1].filter(d => d["Position"] === position_data['position']);
 				groups[position_data['position']] =
 					plot_position(svg, PLOT_HEIGHT*index, position_data, position_confirmations);
+				departmentSelect.appendChild(create_option(position_data['position'], position_data['position']))
 			});
 
 
-			document.querySelector('#department_select').addEventListener('change', () => {
-				if (document.querySelector('#department_select').value === 'state-department') {
+			departmentSelect.addEventListener('change', () => {
+				if (departmentSelect.value === 'Secretary of State') {
 					for (let [key, value] of Object.entries(groups)) {
 						if (key === 'Secretary of State') {
 							const t = d3.transition()
@@ -218,6 +232,5 @@ const init = async () => {
 };
 
 window.onload = () => {
-	const svg = d3.select('#main_svg').attr('width', 600).attr('height', 400);
 	init();
 }
