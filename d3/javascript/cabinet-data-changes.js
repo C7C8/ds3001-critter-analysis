@@ -100,7 +100,7 @@ const plot_data = (group, x_data, y_data, position_confirmations, title) => {
 
 	group.append('text')
 		.attr('x', PLOT_WIDTH / 2)
-		.attr('y', PLOT_HEIGHT)
+		.attr('y', PLOT_HEIGHT - 5)
 		.attr('font-family', 'sans-serif')
 		.attr('text-anchor', 'middle')
 		.text('Year');
@@ -219,6 +219,8 @@ const init = async () => {
 						value[1].style('display', '').attr('transform', `translate(${PLOT_WIDTH}, ${y_offset})`);
 						y_offset += PLOT_HEIGHT
 					}
+
+					svg.attr('height', PLOT_HEIGHT*num_positions);
 				} else {
 					for (let [key, value] of Object.entries(groups)) {
 						if (key === departmentSelect.value) {
@@ -229,6 +231,7 @@ const init = async () => {
 							value[1].style('display', 'none');
 						}
 					}
+					svg.attr('height', PLOT_HEIGHT*4);
 				}
 			});
 
