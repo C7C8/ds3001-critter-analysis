@@ -96,9 +96,44 @@ const plot_data = (group, x_data, y_data, x_scale) => {
 
 const plot_confirmation = (group, x_data, position_confirmations, x_scale, title) => {
 	position_confirmations = position_confirmations.filter(d => convert_to_relative_year(d['Confirmed']) >= x_data[0] && convert_to_relative_year(d['Confirmed']) <= x_data[x_data.length - 1]);
+	position_confirmations.push({'Confirmed': x_data[x_data.length - 1] + "-01-01", 'Party': position_confirmations[position_confirmations.length - 1]['Party']});
+
+	group.selectAll('.conf_box')
+		.data(position_confirmations)
+		.enter()
+		.append('rect')
+		.attr('class', (d, i) => {
+			if (i === 0) return `conf_box ${d['Party'].toLowerCase()}`;
+			else return `conf_box ${position_confirmations[i - 1]['Party'].toLowerCase()}`;
+		})
+		.attr('x', (d, i) => {
+			if (i === 0) return x_scale(x_data[0]);
+			else return x_scale(convert_to_relative_year(position_confirmations[i - 1]['Confirmed']));
+		})
+		.attr('y', MARGIN_TOP)
+		.attr('width', (d, i) => {
+			if (i === 0) return x_scale(convert_to_relative_year(d['Confirmed'])) - x_scale(x_data[0]);
+			else return x_scale(convert_to_relative_year(d['Confirmed'])) - x_scale(convert_to_relative_year(position_confirmations[i-1]['Confirmed']));
+		})
+		.on('mouseover', (d, i) => {
+			let text_parts = title.text().split(' - ');
+
+			if (i === 0) return;
+			else if (2 === text_parts.length) text_parts.splice(1, 0, position_confirmations[i-1]['Nominee']);
+
+			title.text(text_parts.join(' - '));
+		})
+		.on('mouseout', d => {
+			let text_parts = title.text().split(' - ');
+			if (3 === text_parts.length) text_parts.splice(1, 1);
+			title.text(text_parts.join(' - '));
+		})
+		.attr('height', PLOT_HEIGHT - MARGIN_BOTTOM - MARGIN_TOP);
+
+	position_confirmations.pop();
 
 	group.selectAll('.conf_line')
-		.data(position_confirmations)
+		.data(position_confirmations.slice())
 		.enter()
 		.append('line')
 		.attr('class', d => `conf_line ${d['Party'].toLowerCase()}`)
@@ -117,6 +152,7 @@ const plot_confirmation = (group, x_data, position_confirmations, x_scale, title
 			title.text(text_parts.join(' - '));
 		})
 		.style('stroke-width', '6px');
+
 }
 
 const plot_percent_data = (group, x_data, y_data, x_scale) => {
