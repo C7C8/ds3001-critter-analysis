@@ -1,4 +1,4 @@
-const PLOT_WIDTH = window.innerWidth /2 - 20;
+const PLOT_WIDTH = window.innerWidth / 2 - 20;
 const PLOT_HEIGHT = 400;
 const MARGIN_LEFT = 75;
 const MARGIN_RIGHT = 75;
@@ -194,6 +194,24 @@ const init = async () => {
 				const position_confirmations = data[1].filter(d => d["Position"] === position_data['position']);
 				groups[position_data['position']] =
 					plot_position(svg, PLOT_HEIGHT*index, position_data, position_confirmations);
+			});
+
+
+			document.querySelector('#department_select').addEventListener('change', () => {
+				if (document.querySelector('#department_select').value === 'state-department') {
+					for (let [key, value] of Object.entries(groups)) {
+						if (key === 'Secretary of State') {
+							const t = d3.transition()
+								.duration(750)
+								.ease(d3.easeLinear);
+							value[0].transition(t).attr('transform', `translate(0, 0) scale(2.0)`);
+							value[1].style('display', 'none');
+						} else {
+							value[0].style('display', 'none');
+							value[1].style('display', 'none');
+						}
+					}
+				}
 			});
 
 	});
