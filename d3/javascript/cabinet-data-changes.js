@@ -34,15 +34,14 @@ const plot_title = (elem, title) => {
 		.text(title);
 };
 
-// Based on: https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
-const plot_data = (group, x_data, y_data, position_confirmations, title) => {
-	// Remove NaNs from rolling average
-	x_data = x_data.slice(11);
-	y_data = y_data.slice(11);
-
-	const x_scale = d3.scaleLinear()
+const build_x_scale = (x_data) => {
+	return d3.scaleLinear()
 		.domain([x_data[0], x_data[x_data.length - 1]])
 		.range([MARGIN_LEFT, PLOT_WIDTH - MARGIN_RIGHT]);
+}
+
+// Based on: https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
+const plot_data = (group, x_data, y_data, x_scale) => {
 
 	const y_scale = d3.scaleLinear()
 		.domain([Math.min(...y_data), Math.max(...y_data)])
@@ -60,31 +59,6 @@ const plot_data = (group, x_data, y_data, position_confirmations, title) => {
 		.datum(dataset)
 		.attr('class', 'line')
 		.attr('d', line);
-
-
-	position_confirmations = position_confirmations.filter(d => convert_to_relative_year(d['Confirmed']) >= x_data[0] && convert_to_relative_year(d['Confirmed']) <= x_data[x_data.length - 1]);
-
-	group.selectAll('.conf_line')
-		.data(position_confirmations)
-		.enter()
-		.append('line')
-		.attr('class', d => `conf_line ${d['Party'].toLowerCase()}`)
-		.attr('y1', MARGIN_TOP)
-		.attr('y2', PLOT_HEIGHT - MARGIN_BOTTOM)
-		.attr('x1', d => x_scale(convert_to_relative_year(d['Confirmed'])))
-		.attr('x2', d => x_scale(convert_to_relative_year(d['Confirmed'])))
-		.on('mouseover', d => {
-			let text_parts = title.text().split(' - ');
-			if (2 === text_parts.length) text_parts.splice(1, 0, d['Nominee']);
-			title.text(text_parts.join(' - '));
-		})
-		.on('mouseout', d => {
-			let text_parts = title.text().split(' - ');
-			if (3 === text_parts.length) text_parts.splice(1, 1);
-			title.text(text_parts.join(' - '));
-		})
-		.style('stroke-width', '6px');
-
 
 	group.append("g")
 		.attr("class", "x_axis")
@@ -116,17 +90,36 @@ const plot_data = (group, x_data, y_data, position_confirmations, title) => {
 		.attr('text-anchor', 'middle')
 		.attr("transform", `translate(${(PLOT_WIDTH - 15)}, ${(PLOT_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / 2 + MARGIN_TOP}) rotate(90)`)
 		.text('Percent of Total Spending');
+
+	return x_scale;
 };
 
-const plot_percent_data = (group, x_data, y_data) => {
-	// Remove NaNs from rolling average
-	x_data = x_data.slice(11);
-	y_data = y_data.slice(11);
+const plot_confirmation = (group, x_data, position_confirmations, x_scale, title) => {
+	position_confirmations = position_confirmations.filter(d => convert_to_relative_year(d['Confirmed']) >= x_data[0] && convert_to_relative_year(d['Confirmed']) <= x_data[x_data.length - 1]);
 
-	const x_scale = d3.scaleLinear()
-		.domain([x_data[0], x_data[x_data.length - 1]])
-		.range([MARGIN_LEFT, PLOT_WIDTH - MARGIN_RIGHT]);
+	group.selectAll('.conf_line')
+		.data(position_confirmations)
+		.enter()
+		.append('line')
+		.attr('class', d => `conf_line ${d['Party'].toLowerCase()}`)
+		.attr('y1', MARGIN_TOP)
+		.attr('y2', PLOT_HEIGHT - MARGIN_BOTTOM)
+		.attr('x1', d => x_scale(convert_to_relative_year(d['Confirmed'])))
+		.attr('x2', d => x_scale(convert_to_relative_year(d['Confirmed'])))
+		.on('mouseover', d => {
+			let text_parts = title.text().split(' - ');
+			if (2 === text_parts.length) text_parts.splice(1, 0, d['Nominee']);
+			title.text(text_parts.join(' - '));
+		})
+		.on('mouseout', d => {
+			let text_parts = title.text().split(' - ');
+			if (3 === text_parts.length) text_parts.splice(1, 1);
+			title.text(text_parts.join(' - '));
+		})
+		.style('stroke-width', '6px');
+}
 
+const plot_percent_data = (group, x_data, y_data, x_scale) => {
 	const y_scale = d3.scaleLinear()
 		.domain([Math.min(...y_data), Math.max(...y_data)])
 		.range([PLOT_HEIGHT - MARGIN_BOTTOM, MARGIN_TOP]);
@@ -160,17 +153,23 @@ const plot_position = (svg, y_offset, position_data, position_confirmations) => 
 	const domestic_title = plot_title(domestic_group, `${position_data['position']} - Domestic Spending`);
 	const foreign_title = plot_title(foreign_group, `${position_data['position']} - Foreign Spending`);
 
-	const domestic_data = position_data['domestic_spending'].map(d => isNaN(d) ? 0 : d);
-	const foreign_data = position_data['foreign_spending'].map(d => isNaN(d) ? 0 : d);
+	const domestic_data = position_data['domestic_spending'].map(d => isNaN(d) ? 0 : d).slice(11);
+	const foreign_data = position_data['foreign_spending'].map(d => isNaN(d) ? 0 : d).slice(11);
 
 	const domestic_percent = domestic_data.map((d, i) => i >= foreign_data.length ? 1 : (d) / (d + foreign_data[i]));
 	const foreign_percent = foreign_data.map((d, i) => i >= domestic_data.length ? 1 : (d) / (d + domestic_data[i]));
 
-	plot_percent_data(domestic_group, position_data['domestic_dates'], domestic_percent);
-	plot_percent_data(foreign_group, position_data['foreign_dates'], foreign_percent)
+	const x_data = position_data['domestic_dates'].slice(11);
+	const x_scale = build_x_scale(x_data);
 
-	plot_data(domestic_group, position_data['domestic_dates'], domestic_data, position_confirmations, domestic_title);
-	plot_data(foreign_group, position_data['foreign_dates'], foreign_data, position_confirmations, foreign_title);
+	plot_confirmation(domestic_group, x_data, position_confirmations, x_scale, domestic_title);
+	plot_confirmation(foreign_group, x_data, position_confirmations, x_scale, foreign_title);
+
+	plot_percent_data(domestic_group, x_data, domestic_percent, x_scale);
+	plot_percent_data(foreign_group, x_data, foreign_percent, x_scale)
+
+	plot_data(domestic_group, x_data, domestic_data, x_scale);
+	plot_data(foreign_group, x_data, foreign_data, x_scale);
 
 	return [domestic_group, foreign_group];
 };
