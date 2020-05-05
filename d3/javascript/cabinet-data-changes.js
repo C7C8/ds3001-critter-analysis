@@ -1,4 +1,4 @@
-const PLOT_WIDTH = window.innerWidth / 2 - 20;
+const PLOT_WIDTH = window.innerWidth /2 - 20;
 const PLOT_HEIGHT = 400;
 const MARGIN_LEFT = 75;
 const MARGIN_RIGHT = 75;
@@ -106,19 +106,15 @@ const plot_data = (group, x_data, y_data, position_confirmations, title) => {
 		.text('Year');
 
 	group.append('text')
-		.attr('dy', 20)
-		.attr('dx', (PLOT_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / 2 + MARGIN_TOP)
 		.attr('font-family', 'sans-serif')
 		.attr('text-anchor', 'middle')
-		.attr("transform", "rotate(-90)")
+		.attr("transform", `translate(20, ${(PLOT_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / 2 + MARGIN_TOP}) rotate(-90)`)
 		.text('Total Spending ($)');
 
 	group.append('text')
-		.attr('dy', -1* (PLOT_WIDTH - 20))
-		.attr('dx', (PLOT_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / 2 + MARGIN_TOP)
 		.attr('font-family', 'sans-serif')
 		.attr('text-anchor', 'middle')
-		.attr("transform", "rotate(90)")
+		.attr("transform", `translate(${(PLOT_WIDTH - 15)}, ${(PLOT_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM) / 2 + MARGIN_TOP}) rotate(90)`)
 		.text('Percent of Total Spending');
 };
 
@@ -176,6 +172,7 @@ const plot_position = (svg, y_offset, position_data, position_confirmations) => 
 	plot_data(domestic_group, position_data['domestic_dates'], domestic_data, position_confirmations, domestic_title);
 	plot_data(foreign_group, position_data['foreign_dates'], foreign_data, position_confirmations, foreign_title);
 
+	return [domestic_group, foreign_group];
 };
 
 const convert_to_relative_year = (date_str) => {
@@ -191,14 +188,16 @@ const init = async () => {
 
 			const svg = d3.select('#main_svg').attr('width', PLOT_WIDTH*2).attr('height', PLOT_HEIGHT*num_positions);
 
+			const groups = {};
+
 			data[0].forEach((position_data, index) => {
 				const position_confirmations = data[1].filter(d => d["Position"] === position_data['position']);
-				plot_position(svg, PLOT_HEIGHT*index, position_data, position_confirmations);
+				groups[position_data['position']] =
+					plot_position(svg, PLOT_HEIGHT*index, position_data, position_confirmations);
 			});
+
 	});
 };
-
-
 
 window.onload = () => {
 	const svg = d3.select('#main_svg').attr('width', 600).attr('height', 400);
