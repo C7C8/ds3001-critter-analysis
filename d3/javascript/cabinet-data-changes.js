@@ -50,7 +50,7 @@ const plot_data = (group, x_data, y_data, x_scale) => {
 	const line = d3.line()
 		.x(d => x_scale(d[0]))
 		.y(d => y_scale(d[1]))
-		.curve(d3.curveMonotoneX)
+		.curve(d3.curveMonotoneX);
 
 	// Zip x and y
 	const dataset = x_data.map((e, i) => [e, y_data[i]]);
@@ -58,7 +58,8 @@ const plot_data = (group, x_data, y_data, x_scale) => {
 	group.append('path')
 		.datum(dataset)
 		.attr('class', 'line')
-		.attr('d', line);
+		.attr('d', line)
+		.style("pointer-events", "none");
 
 	group.append("g")
 		.attr("class", "x_axis")
@@ -168,7 +169,7 @@ const plot_percent_data = (group, x_data, y_data, x_scale) => {
 	const line = d3.line()
 		.x(d => x_scale(d[0]))
 		.y(d => y_scale(d[1]))
-		.curve(d3.curveMonotoneX)
+		.curve(d3.curveMonotoneX);
 
 	// Zip x and y
 	const dataset = x_data.map((e, i) => [e, y_data[i]]);
@@ -176,7 +177,8 @@ const plot_percent_data = (group, x_data, y_data, x_scale) => {
 	group.append('path')
 		.datum(dataset)
 		.attr('class', 'line line_percent')
-		.attr('d', line);
+		.attr('d', line)
+		.style("pointer-events", "none");
 
 	group.append("g")
 		.attr("class", "y_axis")
