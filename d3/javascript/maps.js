@@ -20,7 +20,7 @@ const position_agency_mappings = {
 	'Secretary of Homeland Security': 'DEPARTMENT OF HOMELAND SECURITY (DHS)'};
 
 
-const color_map = (map, color, data) => {
+const color_map = (map, color, data, div) => {
 	map.attr("fill", d => {
 		if (isoCountries[d['properties']['name']] === undefined) {
 			return "#ccc"; // Can't find ISO 2
@@ -32,7 +32,23 @@ const color_map = (map, color, data) => {
 			data[iso2Toiso3[isoCountries[d['properties']['name']]]] = 0;
 		}
 		return color(data[iso2Toiso3[isoCountries[d['properties']['name']]]]);
-	})
+	}).on("mouseover", function(d) {
+			const sel = d3.select(this);
+			d3.select(this).transition().duration(300).style("opacity", 0.8);
+			div.transition().duration(300)
+				.style("opacity", 1)
+			div.text(d['properties']['name'] + ": " + Formatter.humanReadable(data[iso2Toiso3[isoCountries[d['properties']['name']]]], 1, '', true))
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY -30) + "px");
+		})
+		.on("mouseout", function() {
+			const sel = d3.select(this);
+			d3.select(this)
+				.transition().duration(300)
+				.style("opacity", 1);
+			div.transition().duration(300)
+				.style("opacity", 0);
+		});
 }
 
 
@@ -41,6 +57,10 @@ const init = async () => {
 	d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')]).then(data => {
 		const spending = data[0];
 		const world = data[1];
+
+		const div = d3.select("body").append("div")
+			.attr("class", "tooltip")
+			.style("opacity", 0);
 
 		const projection = d3.geoEqualEarth().scale(400);
 
@@ -89,7 +109,7 @@ const init = async () => {
 			.attr('stroke', "#000")
 			.attr("d", path);
 
-		color_map(map, color, spending_by_country);
+		color_map(map, color, spending_by_country, div);
 
 		const department_select = document.querySelector('#department_select');
 		department_select.selectedIndex = 0;
@@ -97,7 +117,7 @@ const init = async () => {
 			const value = department_select.value;
 
 			if ('all' === value) {
-				color_map(map, color, spending_by_country);
+				color_map(map, color, spending_by_country, div);
 			} else if ('cabinet' === value) {
 				const list_cabinet_spending_by_country = d3.nest()
 					.key(function(d) { return d['country']; })
@@ -108,7 +128,7 @@ const init = async () => {
 				list_cabinet_spending_by_country.forEach(d => {
 					cabinet_spending_by_country[d['key']] = d['value']
 				})
-				color_map(map, color, cabinet_spending_by_country);
+				color_map(map, color, cabinet_spending_by_country, div);
 			} else {
 				const list_department_spending_by_country = d3.nest()
 					.key(function(d) { return d['country']; })
@@ -119,7 +139,7 @@ const init = async () => {
 				list_department_spending_by_country.forEach(d => {
 					department_spending_by_country[d['key']] = d['value']
 				})
-				color_map(map, color, department_spending_by_country);
+				color_map(map, color, department_spending_by_country, div);
 			}
 		});
 	});
