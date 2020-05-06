@@ -280,6 +280,4 @@ const init = async () => {
 	});
 };
 
-window.onload = () => {
-	init();
-}
+window.onload = init;

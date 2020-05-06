@@ -21,8 +21,6 @@ const position_agency_mappings = {
 
 
 const color_map = (map, color, data) => {
-	console.log(data);
-
 	map.attr("fill", d => {
 		if (isoCountries[d['properties']['name']] === undefined) {
 			return "#ccc"; // Can't find ISO 2
@@ -31,7 +29,7 @@ const color_map = (map, color, data) => {
 			return "#ccc"; // Can't find ISO 3
 		}
 		if (data[iso2Toiso3[isoCountries[d['properties']['name']]]] === undefined) {
-			return "#fff"
+			data[iso2Toiso3[isoCountries[d['properties']['name']]]] = 0;
 		}
 		return color(data[iso2Toiso3[isoCountries[d['properties']['name']]]]);
 	})
@@ -127,6 +125,4 @@ const init = async () => {
 	});
 };
 
-window.onload = () => {
-	init();
-}
+window.onload = init;
