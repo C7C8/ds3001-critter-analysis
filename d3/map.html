@@ -6,6 +6,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
 	<script src="https://unpkg.com/topojson@3"></script>
 	<script src="javascript/formatter.js"></script>
+	<script src="javascript/country-to-iso-2.js"></script>
+	<script src="javascript/iso-2-to-iso-3.js"></script>
 	<script src="javascript/maps.js"></script>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 	<style type="text/css">
@@ -19,6 +21,29 @@
 	<div class="header row">
 		<div class="title col-sm-12 col-md-4 offset-md-4">
 			<h1>Explore the Data</h1>
+		</div>
+	</div>
+	<div class="controls row">
+		<div class="title col-sm-12 col-md-4 offset-md-4">
+			<select id="department_select" class="form-control">
+				<option value="all" selected>All</option>
+				<option value="cabinet">Cabinet</option>
+				<option value="Secretary of State">Secretary of State</option>
+				<option value="Secretary of Agriculture">Secretary of Agriculture</option>
+				<option value="Secretary of Commerce">Secretary of Commerce</option>
+				<option value="Secretary of Housing and Urban Development">Secretary of Housing and Urban Development</option>
+				<option value="Secretary of the Treasury">Secretary of the Treasury</option>
+				<option value="Attorney General">Attorney General</option>
+				<option value="Secretary of Defense">Secretary of Defense</option>
+				<option value="Secretary of Education">Secretary of Education</option>
+				<option value="Secretary of Health and Human Services">Secretary of Health and Human Services</option>
+				<option value="Secretary of the Interior">Secretary of the Interior</option>
+				<option value="Secretary of Veterans Affairs">Secretary of Veterans Affairs</option>
+				<option value="Secretary of Energy">Secretary of Energy</option>
+				<option value="Secretary of Transportation">Secretary of Transportation</option>
+				<option value="Secretary of Labor">Secretary of Labor</option>
+				<option value="Secretary of Homeland Security">Secretary of Homeland Security</option>
+			</select>
 		</div>
 	</div>
 </div>
