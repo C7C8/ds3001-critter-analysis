@@ -90,6 +90,8 @@ const init = async () => {
 			spending_by_country[d['key']] = d['value']
 		});
 
+		const color_range = d3.schemeGreens[8]
+
 		const color = d3.scaleThreshold()
 			.domain([
 				Math.pow(10, 6),
@@ -99,7 +101,7 @@ const init = async () => {
 				Math.pow(10, 10),
 				Math.pow(10, 11),
 				Math.pow(10, 12),])
-			.range(d3.schemeGreens[7]);
+			.range(color_range);
 
 		const map_group = svg.append("g")
 		const map = map_group.selectAll("path")
