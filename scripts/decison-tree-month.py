@@ -218,6 +218,7 @@ def export_json(decision_tree, out_file=None, feature_names=None):
 def make_hyperparameter_plots(x_train, y_train, random_state):
     # Inspired by: https://www.kaggle.com/hadend/tuning-random-forest-parameters
     parameters = {
+        "n_estimators": numpy.arange(100, 200, 1),
         "max_depth": numpy.arange(1, 28, 1),
         "min_samples_split": numpy.arange(1, 255, 1),
         "min_samples_leaf": numpy.arange(1, 64, 1),
@@ -229,7 +230,7 @@ def make_hyperparameter_plots(x_train, y_train, random_state):
     for parameter, parameter_range in dict.items(parameters):
         averages = []
         for parameter_value in parameter_range:
-            tree = DecisionTreeClassifier(
+            tree = RandomForestClassifier(
                 random_state=random_state,
                 **{parameter: parameter_value}
             )
@@ -263,6 +264,9 @@ def main():
     del target[0]
 
     x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.30, random_state=RANDOM_SEED)
+
+    # Fixes warnings surrounding random forest parameters
+    y_train = list(y_train.party)
 
     forest = RandomForestClassifier(random_state=RANDOM_SEED)
     forest.fit(x_train, y_train)
