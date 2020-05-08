@@ -245,7 +245,7 @@ def main():
     export_json(tree, fname, data.columns.tolist())
 
     with open('../data/models/dt_by_month/meta/monthly_dt_models.csv', 'a') as f:
-        f.write("{},{}\n".format(fname, accuracy))
+        f.write("(),{},{}\n".format(model_number, fname, accuracy))
 
 
 if __name__ == '__main__':
