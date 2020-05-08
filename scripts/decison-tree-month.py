@@ -1,12 +1,15 @@
 import itertools
+import json
 import os
+import re
+from os import listdir
+from os.path import isfile, join
 
-import numpy
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
-import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier
+import sklearn_json as skljson
 
 MIN_YEAR = 2000
 MAX_YEAR = 2020
@@ -129,6 +132,84 @@ def generate_classification_dataset():
     data.to_pickle('../data/df/dt_dataset_by_month.pkl.gz')
 
 
+# https://gist.github.com/pprett/3813537
+def export_json(decision_tree, out_file=None, feature_names=None):
+    """Export a decision tree in JSON format.
+    This function generates a JSON representation of the decision tree,
+    which is then written into `out_file`. Once exported, graphical renderings
+    can be generated using, for example::
+        $ dot -Tps tree.dot -o tree.ps      (PostScript format)
+        $ dot -Tpng tree.dot -o tree.png    (PNG format)
+    Parameters
+    ----------
+    decision_tree : decision tree classifier
+        The decision tree to be exported to JSON.
+    out_file: file object or string, optional (default=None)
+        Handle or name of the output file.
+    feature_names : list of strings, optional (default=None)
+        Names of each of the features.
+    --------
+    """
+    import numpy as np
+
+    from sklearn.tree import _tree
+
+    def arr_to_py(arr):
+        arr = arr.ravel()
+        wrapper = float
+        if np.issubdtype(arr.dtype, np.int):
+            wrapper = int
+        return list(map(wrapper, arr.tolist()))
+
+    def node_to_str(tree, node_id):
+        node_repr = '"samples": %d, "value": %s' \
+                    % (tree.n_node_samples[node_id],
+                       arr_to_py(tree.value[node_id]))
+        if tree.children_left[node_id] != _tree.TREE_LEAF:
+            if feature_names is not None:
+                feature = feature_names[tree.feature[node_id]]
+            else:
+                feature = "X[%s]" % tree.feature[node_id]
+
+            label = '"label": "%s <= %.2f"' % (feature,
+                                               tree.threshold[node_id])
+            node_type = '"type": "split"'
+        else:
+            node_type = '"type": "leaf"'
+            label = '"label": "Leaf - %d"' % node_id
+        node_repr = ", ".join((node_repr, label, node_type))
+        return node_repr
+
+    def recurse(tree, node_id, parent=None):
+        if node_id == _tree.TREE_LEAF:
+            raise ValueError("Invalid node_id %s" % _tree.TREE_LEAF)
+
+        left_child = tree.children_left[node_id]
+        right_child = tree.children_right[node_id]
+
+        # Open node with description
+        out_file.write('{%s' % node_to_str(tree, node_id))
+
+        # write children
+        if left_child != _tree.TREE_LEAF:  # and right_child != _tree.TREE_LEAF
+            out_file.write(', "children": [')
+            recurse(tree, left_child, node_id)
+            out_file.write(', ')
+            recurse(tree, right_child, node_id)
+            out_file.write(']')
+
+        # close node
+        out_file.write('}')
+
+    out_file = open(out_file, "w")
+
+    if isinstance(decision_tree, _tree.Tree):
+        recurse(decision_tree, 0)
+    else:
+        recurse(decision_tree.tree_, 0)
+    out_file.close()
+
+
 def main():
     if not os.path.isfile('../data/df/dt_dataset_by_month.pkl.gz'):
         generate_classification_dataset()
@@ -151,18 +232,20 @@ def main():
     predictions = tree.predict(x_test)
     accuracy = accuracy_score(y_test, predictions)
     print("Decision tree accuracy: {}".format(accuracy))
-    print("Depth: {}".format(tree.get_depth()))
 
-    fig = plt.figure(figsize=[6.4 * 5, 4.8 * 5])
-    plot_tree(tree, filled=True, class_names=["Republican", "Democrat"], feature_names=data.columns.tolist())
-    fig.show()
+    existing_models = sorted([f for f in listdir('../data/models/dt_by_month') if isfile(join('../data/models/dt_by_month', f))])
 
-    # forest = RandomForestClassifier()
-    # forest.fit(x_train, y_train)
-    #
-    # predictions = forest.predict(x_test)
-    # accuracy = accuracy_score(y_test, predictions)
-    # print("Random forest accuracy: {}".format(accuracy))
+    model_number = 0
+
+    if len(existing_models) > 0:
+        for existing in existing_models:
+            model_number = max(int(re.match(r"model_(\d+)\.json", existing).group(1)) + 1, model_number)
+    print(model_number)
+    fname = '../data/models/dt_by_month/model_{}.json'.format(model_number)
+    export_json(tree, fname, data.columns.tolist())
+
+    with open('../data/models/dt_by_month/meta/monthly_dt_models.csv', 'a') as f:
+        f.write("{},{}\n".format(fname, accuracy))
 
 
 if __name__ == '__main__':
