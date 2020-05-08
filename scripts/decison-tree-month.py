@@ -9,6 +9,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 import sklearn_json as skljson
 import numpy
 from matplotlib import pyplot as plt
@@ -246,6 +247,8 @@ def make_hyperparameter_plots(x_train, y_train, random_state):
 
 
 def main():
+    RANDOM_SEED = 5
+
     if not os.path.isfile('../data/df/dt_dataset_by_month.pkl.gz'):
         generate_classification_dataset()
 
@@ -259,28 +262,18 @@ def main():
                 (2009 + 1.0 / 12) < row[0] <= (2017 + 1.0 / 12)) else REPUBLICAN, axis=1)
     del target[0]
 
-    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.30)
+    x_train, x_test, y_train, y_test = train_test_split(data, target, test_size=0.30, random_state=RANDOM_SEED)
 
-    tree = DecisionTreeClassifier()
-    tree.fit(x_train, y_train)
+    forest = RandomForestClassifier(random_state=RANDOM_SEED)
+    forest.fit(x_train, y_train)
 
-    predictions = tree.predict(x_test)
+    predictions = forest.predict(x_test)
     accuracy = accuracy_score(y_test, predictions)
-    print("Decision tree accuracy: {}".format(accuracy))
+    print("Random forest accuracy: {}".format(accuracy))
 
-    existing_models = sorted([f for f in listdir('../data/models/dt_by_month') if isfile(join('../data/models/dt_by_month', f))])
-
-    model_number = 0
-
-    if len(existing_models) > 0:
-        for existing in existing_models:
-            model_number = max(int(re.match(r"model_(\d+)\.json", existing).group(1)) + 1, model_number)
-    print(model_number)
-    fname = '../data/models/dt_by_month/model_{}.json'.format(model_number)
-    export_json(tree, fname, data.columns.tolist())
-
-    with open('../data/models/dt_by_month/meta/monthly_dt_models.csv', 'a') as f:
-        f.write("(),{},{}\n".format(model_number, fname, accuracy))
+    for model_number, tree in enumerate(forest.estimators_):
+        fname = '../data/models/rf_trees/model_{}.json'.format(model_number)
+        export_json(tree, fname, data.columns.tolist())
 
 
 if __name__ == '__main__':
