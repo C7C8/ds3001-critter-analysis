@@ -11,7 +11,9 @@ const RandomForest = class {
 			trees_ids.push(i);
 		}
 
-		const trees = trees_ids.map(async i => await DecisionTree.loadTree(`../data/models/rf_trees/model_${i}.json`))
+		const tree_promises = trees_ids.map(async i => await DecisionTree.loadTree(`../data/models/rf_trees/model_${i}.json`))
+
+		const trees = await Promise.all(tree_promises).then(d => d);
 
 		return new RandomForest(trees);
 	}
