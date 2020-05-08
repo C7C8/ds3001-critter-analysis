@@ -174,7 +174,7 @@ def export_json(decision_tree, out_file=None, feature_names=None):
             else:
                 feature = "X[%s]" % tree.feature[node_id]
 
-            label = '"label": "%s <= %.2f"' % (feature,
+            label = '"label": "%s <= %f"' % (feature,
                                                tree.threshold[node_id])
             node_type = '"type": "split"'
         else:
