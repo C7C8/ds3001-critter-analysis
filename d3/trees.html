@@ -21,16 +21,22 @@
 </style>
 
 <body>
-<select id="#model_select" onchange="loadModel(this.value)">
+<select id="model_select" onchange="loadModel(this.value)">
     <option value="0" selected>Model 0</option>
-    <option value="1">Model 1</option>
-    <option value="2">Model 2</option>
-    <option value="3">Model 3</option>
 </select>
 
 <!-- load the d3.js library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
 <script>
+    const modelSelect = document.querySelector('#model_select');
+
+for (let i = 1; i < 100; i++)
+{
+    const option = document.createElement('option');
+    option.value = i;
+    option.innerText = `Model ${i}`
+    modelSelect.appendChild(option);
+}
 
 // Set the dimensions and margins of the diagram
 const margin = {top: 20, right: 90, bottom: 30, left: 200},
@@ -55,8 +61,7 @@ let root = null;
 const treemap = d3.tree().size([height, width]);
 
 const loadModel = num => {
-    console.log("load")
-    Promise.all([d3.json(`../data/models/dt_by_month/model_${num}.json`),
+    Promise.all([d3.json(`../data/models/rf_trees/model_${num}.json`),
     d3.csv('../data/models/dt_by_month/meta/monthly_dt_models.csv')]).then(data => {
         const treeData = data[0];
 
