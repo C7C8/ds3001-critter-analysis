@@ -46,9 +46,9 @@ Promise.all([d3.csv(`../data/models/rf_trees/meta/agencies.csv`),
 });
 
 const predict = () => {
-	console.log('Predict');
 	const results = forest.predict(calculateFeatures());
-	document.querySelector('#prediction_label').innerText = `Based on your spending, your administration would likely be ${results[0] > results[1] ? 'Republican' : 'Democrat'}.`;
+
+	document.querySelector('#prediction_label').innerText = `By a ${Math.max(results[0], results[1])}-${Math.min(results[0], results[1])} margin, our forest thinks your administration would likely be ${results[0] > results[1] ? 'Republican' : 'Democrat'}.`;
 }
 
 const calculateFeatures = () => {
