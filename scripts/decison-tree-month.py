@@ -232,6 +232,7 @@ def make_hyperparameter_plots(x_train, y_train, random_state):
         averages = []
         for parameter_value in parameter_range:
             tree = RandomForestClassifier(
+                bootstrap=False,
                 random_state=random_state,
                 **{parameter: parameter_value}
             )
@@ -269,7 +270,12 @@ def main():
     # Fixes warnings surrounding random forest parameters
     y_train = list(y_train.party)
 
-    forest = RandomForestClassifier(random_state=RANDOM_SEED)
+    forest = RandomForestClassifier(
+        n_estimators=185,
+        max_depth=7,
+        bootstrap=False,
+        random_state=RANDOM_SEED
+    )
     forest.fit(x_train, y_train)
 
     predictions = forest.predict(x_test)
