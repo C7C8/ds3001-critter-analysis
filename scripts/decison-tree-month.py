@@ -7,9 +7,11 @@ from os.path import isfile, join
 
 import pandas as pd
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.tree import DecisionTreeClassifier
 import sklearn_json as skljson
+import numpy
+from matplotlib import pyplot as plt
 
 MIN_YEAR = 2000
 MAX_YEAR = 2020
@@ -208,6 +210,39 @@ def export_json(decision_tree, out_file=None, feature_names=None):
     else:
         recurse(decision_tree.tree_, 0)
     out_file.close()
+
+
+# A debug method to help with tuning
+# Outputs to a tuning directory
+def make_hyperparameter_plots(x_train, y_train, random_state):
+    # Inspired by: https://www.kaggle.com/hadend/tuning-random-forest-parameters
+    parameters = {
+        "max_depth": numpy.arange(1, 28, 1),
+        "min_samples_split": numpy.arange(1, 255, 1),
+        "min_samples_leaf": numpy.arange(1, 64, 1),
+        "max_leaf_nodes": numpy.arange(2, 64, 1),
+        "min_weight_fraction_leaf": numpy.arange(0.1, 0.4, 0.1),
+        "min_impurity_decrease": numpy.arange(0.001, 0.1, 0.001)
+    }
+
+    for parameter, parameter_range in dict.items(parameters):
+        averages = []
+        for parameter_value in parameter_range:
+            tree = DecisionTreeClassifier(
+                random_state=random_state,
+                **{parameter: parameter_value}
+            )
+
+            results = cross_val_score(tree, x_train, y_train)
+            averages.append(results.mean())
+
+        fig = plt.figure()
+        plot = fig.add_subplot(1, 1, 1)
+        plot.plot(parameter_range, averages)
+        plot.set_title(parameter)
+        plot.set_ylabel('5-Fold Average Accuracy')
+        plot.set_xlabel('Parameter Value')
+        fig.savefig(f'tuning/{parameter}.png')
 
 
 def main():
