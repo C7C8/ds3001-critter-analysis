@@ -177,10 +177,11 @@ def export_json(decision_tree, out_file=None, feature_names=None):
             label = '"label": "%s <= %f"' % (feature,
                                                tree.threshold[node_id])
             node_type = '"type": "split"'
+            node_repr = ", ".join((node_repr, label, node_type, '"feature": "{}"'.format(feature), '"threshold": {:f}'.format(tree.threshold[node_id])))
         else:
             node_type = '"type": "leaf"'
             label = '"label": "Leaf - %d"' % node_id
-        node_repr = ", ".join((node_repr, label, node_type))
+            node_repr = ", ".join((node_repr, label, node_type))
         return node_repr
 
     def recurse(tree, node_id, parent=None):
@@ -279,6 +280,10 @@ def main():
         fname = '../data/models/rf_trees/model_{}.json'.format(model_number)
         export_json(tree, fname, data.columns.tolist())
 
+    with open('../data/models/rf_trees/meta/features.csv', 'w') as f:
+        f.write('feature\n')
+        for feature in data.columns.tolist():
+            f.write('{}\n'.format(feature))
 
 if __name__ == '__main__':
     main()
