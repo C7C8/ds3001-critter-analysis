@@ -16,7 +16,12 @@ const Node = class {
 	}
 
 	decide (data) {
-		return data[this.feature] <= this.threshold ? this.child_0 : this.child_1;
+		let result = null;
+		data.forEach(f => {
+			if (f['feature'] === this.feature)
+				result = parseFloat(f['value']) <= this.threshold ? this.child_0 : this.child_1;
+		})
+		return result;
 	}
 }
 
