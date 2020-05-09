@@ -57,7 +57,18 @@
 			<h4>By a <span id="vote_high"></span>-<span id="vote_low"></span> margin, our forest thinks you would spend like a <span id="party_res"></span></h4>
 		</div>
 	</div>
-	<form>
+		<div class="form-group row">
+			<div class="offset-sm-3 col-sm-3">
+				<select class="form-control" id="file_selector">
+					<option value="2005_april" selected>Apr. 2005 (Bush)</option>
+					<option value="2014_september" selected>Sep. 2014 (Obama)</option>
+					<option value="2019_april" selected>Apr. 2019 (Trump)</option>
+				</select>
+			</div>
+			<div class="col-sm-3">
+				<button class="form-control" onclick="selectMonth()">Reload!</button>
+			</div>
+		</div>
 		<div class="form-group row">
 			<label class="offset-sm-3 col-sm-2 col-form-label">Select a department to view: </label>
 			<div class="col-sm-4">
@@ -101,7 +112,6 @@
 				<input id="pct_foreign_agency" max="100" step="0.0000000000001" class="form-control" type="number">
 			</div>
 		</div>
-	</form>
 </div>
 <div id="map_container">
 	<svg id="map_svg"></svg>

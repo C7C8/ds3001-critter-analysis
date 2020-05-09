@@ -41,6 +41,15 @@ const predict = () => {
 }
 
 
+const selectMonth = async () => {
+	const value = document.querySelector('#file_selector').value;
+    feature_data = await load_month(value);
+
+    setFields();
+    predict();
+}
+
+
 const getFeatureValue = feature => {
     let value = null;
     feature_data.forEach(f => {
@@ -114,7 +123,9 @@ const init = async () => {
     const map_data = await initializeMap('#map_svg', 1200, 600, map_clicked);
 
     const map = map_data[0], map_scale = map_data[1], tooltip_div = map_data[2];
-    const month_data = await load_month('2014_september');
+
+    document.querySelector('#file_selector').selectedIndex = 0;
+    const month_data = await load_month(document.querySelector('#file_selector').value);
 
     feature_data = month_data;
 
