@@ -1,10 +1,12 @@
 const Node = class {
-	constructor (feature, threshold, child_0=null, child_1=null, classification=-1) {
+	constructor (feature, threshold, child_0=null, child_1=null, classification=-1, samples=0, value) {
 		this.feature = feature;
 		this.threshold = threshold;
 		this.child_0 = child_0;
 		this.child_1 = child_1;
 		this.classification = classification;
+		this.samples = samples;
+		this.value = value;
 	}
 
 	getClassification() {
@@ -22,6 +24,27 @@ const Node = class {
 				result = parseFloat(f['value']) <= this.threshold ? this.child_0 : this.child_1;
 		})
 		return result;
+	}
+
+	buildModelForDisplay (data, visited) {
+		if (!this.isLeaf()) {
+			let visited_0 = false
+			if (this.decide(data) === this.child_0) visited_0 = true;
+
+			return {
+				'feature': this.feature,
+				'threshold': this.threshold,
+				'visited': visited,
+				'samples': this.samples,
+				'value': this.value,
+				'children': [this.child_0.buildModelForDisplay(data, visited_0), this.child_1.buildModelForDisplay(data, !visited_0)]
+			}
+		} else {
+			return {
+				'classification': this.classification === 0 ? 'Republican' : 'Democrat',
+				'visited': visited
+			}
+		}
 	}
 }
 
@@ -41,7 +64,7 @@ const DecisionTree = class {
 		} else {
 			const child_0 = DecisionTree.buildTree(root.children[0]);
 			const child_1 = DecisionTree.buildTree(root.children[1]);
-			return new Node(root.feature, root.threshold, child_0, child_1, -1);
+			return new Node(root.feature, root.threshold, child_0, child_1, -1, root.samples, root.value);
 		}
 	}
 
@@ -53,5 +76,9 @@ const DecisionTree = class {
 		}
 
 		return node.getClassification();
+	}
+
+	buildModelForDisplay(data) {
+		return this.root.buildModelForDisplay(data, true);
 	}
 }
