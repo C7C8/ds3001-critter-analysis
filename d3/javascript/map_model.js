@@ -63,7 +63,9 @@ const getFeatureValue = feature => {
 
 const modifyFeature = element => {
     const feature = element.substring(1).replace('country', selected_country_code).replace('agency', selected_agency);
-    const value = document.querySelector(element).value;
+    let value = document.querySelector(element).value;
+
+    if (feature.startsWith('pct_')) value /= 100.0;
 
     feature_data.forEach(f => {
         if (f['feature'] === feature)
