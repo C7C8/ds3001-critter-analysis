@@ -6,7 +6,7 @@ let forest = null;
 let tree_svg = null;
 let tree_map = null;
 
-const TREE_MARGIN = {top: 20, right: 90, bottom: 30, left: 200};
+const TREE_MARGIN = {top: 0, right: 90, bottom: -500, left: 220};
 let tree_i = 0;
 const tree_duration = 750;
 let tree_root = null;
@@ -62,10 +62,12 @@ function updateTree(source) {
 
     // Add labels for the nodes
     nodeEnter.append('text')
-        .attr("dy", ".35em")
         .style('font-weight', 'bold')
+        .attr("y", function (d) {
+            return d.children || d._children ? ((d.parent !== null && d.data.feature === d.parent.children[0].data.feature) ? -13 : 23) : 4;
+        })
         .attr("x", function (d) {
-            return d.children || d._children ? -13 : 13;
+            return d.children || d._children ? 0 : 13;
         })
         .attr("text-anchor", function (d) {
             return d.children || d._children ? "end" : "start";
@@ -89,7 +91,8 @@ function updateTree(source) {
     nodeUpdate.select('circle.node')
         .attr('r', 10)
         .style("fill", function (d) {
-            if (d.data.evaluation !== undefined) {
+            if (d.data.evaluation === undefined && d.data.visited) return '#0c0'
+            else if (d.data.evaluation !== undefined && d.data.visited) {
                 if (d.data.evaluation) return '#0c0'
                 else return '#c00';
             } else return '#fff'
@@ -144,7 +147,6 @@ function updateTree(source) {
             else {
                 if (d.data.value[0] > d.data.value[1]) return tree_link_rep_color_scale(d.data.value[0] / (d.data.value[0] + d.data.value[1]));
                 else if (d.data.value[1] > d.data.value[0]) {
-                    console.log(d.data.value[1] / (d.data.value[0] + d.data.value[1]));
                     return tree_link_dem_color_scale(d.data.value[1] / (d.data.value[0] + d.data.value[1]));
                 }
                 else return tree_link_rep_color_scale(0);
@@ -203,7 +205,7 @@ const displayTree = tree_num => {
     tree_root = d3.hierarchy(forest.trees[tree_num].buildModelForDisplay(feature_data), function (d) {
         return d.children;
     });
-    tree_root.x0 = (window.innerHeight - 40 - TREE_MARGIN.top - TREE_MARGIN.bottom) / 2;
+    tree_root.x0 = (window.innerHeight - TREE_MARGIN.top - TREE_MARGIN.bottom) / 2;
     tree_root.y0 = 0;
 
     updateTree(tree_root);
@@ -329,11 +331,11 @@ const map_clicked = d => {
 
 
 const initTreeView = () => {
-    tree_svg = d3.select('#tree_svg').attr('width', window.innerWidth - 40).attr('height', window.innerHeight - 40)
+    tree_svg = d3.select('#tree_svg').attr('width', window.innerWidth - 40).attr('height', window.innerHeight + 550)
     .append("g")
     .attr("transform", "translate("
         + TREE_MARGIN.left + "," + TREE_MARGIN.top + ")");
-    tree_map = d3.tree().size([window.innerHeight - 40 - TREE_MARGIN.top - TREE_MARGIN.bottom, window.innerWidth - TREE_MARGIN.left - TREE_MARGIN.right]);
+    tree_map = d3.tree().size([window.innerHeight - TREE_MARGIN.top - TREE_MARGIN.bottom, window.innerWidth - TREE_MARGIN.left - TREE_MARGIN.right]);
     const select_tree = document.querySelector('#select_tree');
 
     for (let i = 0; i < 185; i++)
