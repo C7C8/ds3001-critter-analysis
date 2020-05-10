@@ -18,10 +18,14 @@ const Node = class {
 	}
 
 	decide (data) {
-		let result = null;
+		return this.evaluate(data) ? this.child_0 : this.child_1;
+	}
+
+	evaluate (data) {
+		let result = false;
 		data.forEach(f => {
 			if (f['feature'] === this.feature)
-				result = parseFloat(f['value']) <= this.threshold ? this.child_0 : this.child_1;
+				result = parseFloat(f['value']) <= this.threshold;
 		})
 		return result;
 	}
@@ -37,6 +41,7 @@ const Node = class {
 				'visited': visited,
 				'samples': this.samples,
 				'value': this.value,
+				'evaluation': this.evaluate(data),
 				'children': [this.child_0.buildModelForDisplay(data, visited_0 && visited), this.child_1.buildModelForDisplay(data, !visited_0 && visited)]
 			}
 		} else {

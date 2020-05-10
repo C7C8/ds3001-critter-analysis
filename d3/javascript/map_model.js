@@ -63,6 +63,7 @@ function updateTree(source) {
     // Add labels for the nodes
     nodeEnter.append('text')
         .attr("dy", ".35em")
+        .style('font-weight', 'bold')
         .attr("x", function (d) {
             return d.children || d._children ? -13 : 13;
         })
@@ -88,7 +89,10 @@ function updateTree(source) {
     nodeUpdate.select('circle.node')
         .attr('r', 10)
         .style("fill", function (d) {
-            return d._children ? "lightsteelblue" : "#fff";
+            if (d.data.evaluation !== undefined) {
+                if (d.data.evaluation) return '#0c0'
+                else return '#c00';
+            } else return '#fff'
         })
         .attr('cursor', 'pointer');
 
