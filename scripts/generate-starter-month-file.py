@@ -1,12 +1,22 @@
 import pandas as pd
+import sys
+import calendar
+import os.path
 
 
 def main():
+    if len(sys.argv) != 3:
+        print('Usage: ./generate-start-month-file.py month year')
+        return
+
+    month = int(sys.argv[1])
+    year = int(sys.argv[2])
+
     data = pd.read_pickle('../data/df/dt_dataset_by_month.pkl.gz')
 
     data = data.fillna(0)
 
-    month_data = data.loc[2014.6666666666667]
+    month_data = data.loc[year + month/12]
 
     countries = pd.read_csv('../data/models/rf_trees/meta/countries.csv')['country'].to_list()
     agencies = pd.read_csv('../data/models/rf_trees/meta/agencies.csv')['agency'].to_list()
@@ -31,7 +41,11 @@ def main():
 
     print('Total: {}'.format(month_data['total']))
 
-    sample_month.to_csv('../data/models/rf_trees/meta/2014_august.csv')
+    # Technically vulnerable to path traversal but 1) this is a small dumb script, 2) these are supposed to be integers
+    # so we don't really have to worry about it.
+    file_name = f'{year}_{calendar.month_name[month].lower()}.csv'
+    file_path = os.path.join('../data/models/rf_trees/meta/', file_name)
+    month_data.to_csv(file_path, index_label='feature', header=['value'])
 
 
 if __name__ == "__main__":
