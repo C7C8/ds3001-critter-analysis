@@ -37,7 +37,7 @@ const Node = class {
 				'visited': visited,
 				'samples': this.samples,
 				'value': this.value,
-				'children': [this.child_0.buildModelForDisplay(data, visited_0), this.child_1.buildModelForDisplay(data, !visited_0)]
+				'children': [this.child_0.buildModelForDisplay(data, visited_0 && visited), this.child_1.buildModelForDisplay(data, !visited_0 && visited)]
 			}
 		} else {
 			return {

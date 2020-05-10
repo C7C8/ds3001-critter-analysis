@@ -45,6 +45,21 @@
 		.republican {
 			color: #f00
 		}
+		.node circle {
+		  fill: #fff;
+		  stroke: steelblue;
+		  stroke-width: 3px;
+		}
+
+		.node text {
+		  font: 12px sans-serif;
+		}
+
+		.link {
+		  fill: none;
+		  /*stroke: #000;*/
+		}
+
     </style>
 </head>
 <body>
@@ -205,6 +220,17 @@
 		</div>
 	</form>
 
+</div>
+<div class="container-fluid">
+	<div class="form-group row">
+		<div class="offset-sm-4 col-sm-4">
+			<select class="form-control" onchange="displayTree(parseInt(this.value))" id="select_tree">
+			</select>
+		</div>
+	</div>
+</div>
+<div>
+	<svg id="tree_svg"></svg>
 </div>
 </body>
 </html>
