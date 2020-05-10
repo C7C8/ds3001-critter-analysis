@@ -1,10 +1,13 @@
-let feature_data = null;
+let feature_data;
 let selected_country_code = 'USA';
 let selected_country_name = 'United States of America';
 let selected_agency = 'doj';
 let forest = null;
 let tree_svg = null;
 let tree_map = null;
+let map = null;
+let tooltip_div = null;
+let map_scale = null;
 
 const TREE_MARGIN = {top: 0, right: 90, bottom: -500, left: 220};
 let tree_i = 0;
@@ -255,6 +258,7 @@ const selectMonth = async () => {
     feature_data = await load_month(value);
 
     setFields();
+    color_map(map, map_scale, extract_data_for_agency(feature_data, document.querySelector('#department_select').value), tooltip_div);
     predict();
 }
 
@@ -280,6 +284,7 @@ const modifyFeature = element => {
         if (f['feature'] === feature)
             f['value'] = "" + value;
     });
+    color_map(map, map_scale, extract_data_for_agency(feature_data, document.querySelector('#department_select').value), tooltip_div);
 
     predict();
 }
@@ -355,12 +360,12 @@ const initTreeView = () => {
 const init = async () => {
     const map_data = await initializeMap('#map_svg', 1200, 600, map_clicked);
 
-    const map = map_data[0], map_scale = map_data[1], tooltip_div = map_data[2];
+    map = map_data[0];
+    map_scale = map_data[1];
+    tooltip_div = map_data[2];
 
     document.querySelector('#file_selector').selectedIndex = 0;
-    const month_data = await load_month(document.querySelector('#file_selector').value);
-
-    feature_data = month_data;
+    feature_data = await load_month(document.querySelector('#file_selector').value);
 
     setFields();
 
@@ -370,14 +375,14 @@ const init = async () => {
         predict();
     });
 
-    color_map(map, map_scale, extract_data_for_agency(month_data, 'dos'), tooltip_div);
+    color_map(map, map_scale, extract_data_for_agency(feature_data, 'dos'), tooltip_div);
 
     const department_select = document.querySelector('#department_select');
     department_select.selectedIndex = 0;
     department_select.addEventListener('change', () => {
         selected_agency = department_select.value;
         setFields();
-        color_map(map, map_scale, extract_data_for_agency(month_data, department_select.value), tooltip_div);
+        color_map(map, map_scale, extract_data_for_agency(feature_data, department_select.value), tooltip_div);
     });
 }
 
