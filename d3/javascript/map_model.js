@@ -77,7 +77,7 @@ function updateTree(source) {
         })
         .text(function (d) {
             if (d.data.classification !== undefined) return d.data.classification;
-            else return `${d.data.feature} <= ${d.data.threshold}`
+            else return d.data.feature.startsWith('pct_') ? `${d.data.feature} <= ${(d.data.threshold*100) < 0 ? (d.data.threshold*100).toFixed(5) : (d.data.threshold*100).toFixed(0)}%` : `${d.data.feature} <= $${(d.data.threshold.toFixed(0))}`
         });
 
     // UPDATE
