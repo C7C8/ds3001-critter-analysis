@@ -47,6 +47,7 @@ const Node = class {
 		} else {
 			return {
 				'classification': this.classification === 0 ? 'Republican' : 'Democrat',
+				'samples': this.samples,
 				'visited': visited
 			}
 		}
@@ -65,7 +66,7 @@ const DecisionTree = class {
 
 	static buildTree(root) {
 		if ('leaf' === root.type) {
-			return new Node(null, null, null, null, root.value[0] > 0 ? 0 : 1);
+			return new Node(null, null, null, null, root.value[0] > 0 ? 0 : 1, root.samples);
 		} else {
 			const child_0 = DecisionTree.buildTree(root.children[0]);
 			const child_1 = DecisionTree.buildTree(root.children[1]);
